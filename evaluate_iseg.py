@@ -2,7 +2,7 @@ import argparse
 
 import numpy as np
 import torch
-from datamodule.iseg import ISeg2017DataModule
+from datamodule.iseg2 import ISeg2017DataModule
 from module.segcaps import SegCaps2D, SegCaps3D
 from module.ucaps import UCaps3D
 from module.unet import UNetModule

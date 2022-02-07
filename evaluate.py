@@ -4,10 +4,10 @@ import numpy as np
 import torch
 from datamodule.heart import HeartDecathlonDataModule
 from datamodule.hippocampus import HippocampusDecathlonDataModule
-from datamodule.iseg import ISeg2017DataModule
+from datamodule.iseg2 import ISeg2017DataModule
 from datamodule.invitro import InvitroDataModule
 from datamodule.shrec import SHRECDataModule
-from datamodule.luna import LUNA16DataModule
+from datamodule.luna2 import LUNA16DataModule
 from module.segcaps import SegCaps2D, SegCaps3D
 from module.ucaps import UCaps3D
 from module.unet import UNetModule
