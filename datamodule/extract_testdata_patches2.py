@@ -4,20 +4,20 @@ import mrcfile as mrc
 import nibabel as nib
 
 # base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/DeepET_Tomo_Masks_3Class"
-# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/0InvitroTargets"
+base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/0InvitroTargets"
 # base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/Invitro_PTClass"
-base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/Invitro_RBClass"
+# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/Invitro_RBClass"
 output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/invitro/"
 
 
 
 overlap = 1
-classNum = 2
+classNum = 3
 patch_num = 1
 patch_size = 408
 tomo_id = 23
 bwidth = int(patch_size / 2)
-slide = int(2 * bwidth + 1 - overlap)  # 1  # patch_size - overlap
+slide = 1  # patch_size - overlap
 
 
 def read_mrc(filename):
@@ -43,11 +43,11 @@ tomo_name = os.path.join(base_dir, str(tomo_id) + '_resampled.mrc')
 mask_name = os.path.join(base_dir, 'target_' + str(tomo_id) + '_resampled.mrc')
 tomo = read_mrc(tomo_name)
 mask = read_mrc(mask_name)
-
+# mask = mask[:, 0:409, 0:409]
 
 x_centers = list(range(bwidth, tomo.shape[2] - bwidth, slide))
 y_centers = list(range(bwidth, tomo.shape[1] - bwidth, slide))
-z_centers = [77]  # list(range(bwidth, tomo.shape[0] - bwidth, slide))
+z_centers = [73]  # list(range(bwidth, tomo.shape[0] - bwidth, slide))
 
 # if dimensions are not exactly divisible, we should collect the remained voxels around borders
 x_centers, y_centers, z_centers = correct_center_positions(x_centers, y_centers, z_centers, tomo.shape, bwidth)
@@ -58,9 +58,6 @@ print("total # patches: ", total_pnum)
 for z in z_centers:
     for y in y_centers:
         for x in x_centers:
-            # patch = tomo[z - bwidth:z + bwidth, y - bwidth:y + bwidth, x - bwidth:x + bwidth]
-            # patch_mask = mask[z - bwidth:z + bwidth, y - bwidth:y + bwidth, x - bwidth:x + bwidth]
-
             patch = tomo[:, y - bwidth:y + bwidth, x - bwidth:x + bwidth]
             patch_mask = mask[:, y - bwidth:y + bwidth, x - bwidth:x + bwidth]
 

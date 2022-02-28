@@ -7,7 +7,7 @@ from glob import glob
 # dataset = "shrec3"
 dataset = "invitro"
 base_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/" + str(dataset)
-mode = "validate"
+mode = "train"
 
 data = dict()
 data = {"name": "invitro",
@@ -17,14 +17,14 @@ data = {"name": "invitro",
         "release": "experimental data",
         "tensorImageSize": "3D",
         "modality": {"0": "tomogram"},
-        # "labels": {"0": "bg", "1": "ptr", "2": "rb"},
-        "labels": {"0": "bg", "1": "ptr"},
+        "labels": {"0": "bg", "1": "ptr", "2": "rb"},
+        # "labels": {"0": "bg", "1": "ptr"},
         # "labels": {"0": "bg", "1": "rb"},
         # "labels": {"0": "bg", "1": "3cf3"},
         # "labels": {"0": "bg", "1": "4b4t", "2": "4d8q"},
         # "labels": {"0": "bg", "1": "4b4t", "2": "4d8q", "3": "3cf3"},
-        "numTraining": 972,
-        "numTest": 323,
+        "numTraining": 1963,
+        "numTest": 50,
         }
 
 list_tr_tomos_IDs = glob(os.path.join(base_dir, "imagesTr/*.nii.gz"))

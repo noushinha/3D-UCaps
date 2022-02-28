@@ -15,12 +15,13 @@ from monai.transforms import (
     ScaleIntensityd,
     SpatialPadd,
     ToTensord,
+    RandRotate90d
 )
 
 
 class InvitroDataModule(pl.LightningDataModule):
     class_weight = np.asarray([0.01361341, 0.47459406, 0.51179253])
-
+    class_weight = np.asarray([0.02540594, 0.97459406])
     def __init__(
         self,
         root_dir=".",
@@ -58,6 +59,7 @@ class InvitroDataModule(pl.LightningDataModule):
                     AddChanneld(keys=["image", "label"]),
                     Orientationd(keys=["image", "label"], axcodes="LPI"),
                     ScaleIntensityd(keys=["image"], minv=0.0, maxv=1.0),
+                    # RandRotate90d(keys=["image", "label"], prob=0.3, max_k=2, spatial_axes=(0, 2)),
                     SpatialPadd(keys=["image", "label"], spatial_size=train_patch_size, mode="edge"),
                     FgBgToIndicesd(keys=["label"], image_key="image"),
                     # RandCropByPosNegLabeld(
@@ -84,6 +86,7 @@ class InvitroDataModule(pl.LightningDataModule):
                     AddChanneld(keys=["image", "label"]),
                     Orientationd(keys=["image", "label"], axcodes="LPI"),
                     ScaleIntensityd(keys=["image"], minv=0.0, maxv=1.0),
+                    # RandRotate90d(keys=["image", "label"], prob=0.3, max_k=2, spatial_axes=(0, 2)),
                     ToTensord(keys=["image", "label"]),
                 ]
             )
@@ -108,19 +111,23 @@ class InvitroDataModule(pl.LightningDataModule):
             data_dicts = load_decathlon_datalist(
                 os.path.join(self.base_dir, "dataset.json"), data_list_key=datalist_key, base_dir=self.base_dir
             )
-            data_dicts_list = partition_dataset(data_dicts, num_partitions=1, shuffle=True, seed=0)
-            # train_dicts, val_dicts = [], []
-            # for i, data_dict in enumerate(data_dicts_list):
-            #     if i == self.fold:
-            #         val_dicts.extend(data_dict)
-            #     else:
-            #         train_dicts.extend(data_dict)
-            # return train_dicts, val_dicts
-            val_dicts = []
-            for i, data_dict in enumerate(data_dicts_list):
-                val_dicts.extend(data_dict)
+            data_dicts_list = partition_dataset(data_dicts, num_partitions=10, shuffle=True, seed=0)
+            train_dicts, val_dicts = [], []
 
-            return val_dicts
+            for i, data_dict in enumerate(data_dicts_list):
+                if i == self.fold:
+                    val_dicts.extend(data_dict)
+                else:
+                    train_dicts.extend(data_dict)
+            return train_dicts, val_dicts
+
+            # for test
+            # data_dicts_list = partition_dataset(data_dicts, num_partitions=1, shuffle=False, seed=0)
+            # val_dicts = []
+            # for i, data_dict in enumerate(data_dicts_list):
+            #     val_dicts.extend(data_dict)
+            # return val_dicts
+
         else:
             data_dicts = load_decathlon_datalist(
                 os.path.join(self.base_dir, "dataset.json"), data_list_key=datalist_key, base_dir=self.base_dir
@@ -161,8 +168,8 @@ class InvitroDataModule(pl.LightningDataModule):
                 print("length of trainset: ", len(self.trainset))
                 print("length of trainset: ", len(self.valset))
         elif stage == "validate":
-            # _, val_data_dicts = self._load_data_dicts()
-            val_data_dicts = self._load_data_dicts()
+            _, val_data_dicts = self._load_data_dicts()
+            # val_data_dicts = self._load_data_dicts()
             self.valset = CacheDataset(
                 data=val_data_dicts, transform=self.val_transforms, cache_rate=1.0, num_workers=4
             )

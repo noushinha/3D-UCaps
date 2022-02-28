@@ -7,8 +7,8 @@ from datamodule.heart import HeartDecathlonDataModule
 from datamodule.hippocampus import HippocampusDecathlonDataModule
 from datamodule.shrec import SHRECDataModule
 from datamodule.invitro import InvitroDataModule
-from datamodule.iseg2 import ISeg2017DataModule
-from datamodule.luna2 import LUNA16DataModule
+from datamodule.iseg import ISeg2017DataModule
+from datamodule.luna import LUNA16DataModule
 from module.segcaps import SegCaps2D, SegCaps3D
 from module.ucaps import UCaps3D
 from module.unet import UNetModule
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     train_parser.add_argument("--fold", type=int, default=0)
     train_parser.add_argument("--num_workers", type=int, default=4)
     train_parser.add_argument("--batch_size", type=int, default=1)
-    train_parser.add_argument("--num_samples", type=int, default=32,
+    train_parser.add_argument("--num_samples", type=int, default=1,
                               help="Effective batch size: batch_size x num_samples")
     train_parser.add_argument("--balance_sampling", type=int, default=1)
     train_parser.add_argument("--use_class_weight", type=int, default=0)
@@ -104,7 +104,6 @@ if __name__ == "__main__":
         pass
 
     # initialise the LightningModule
-
     if args.use_class_weight:
         class_weight = torch.tensor(data_module.class_weight).float()
     else:
@@ -133,7 +132,7 @@ if __name__ == "__main__":
                                       name=f"{args.model_name}_{args.dataset}_{args.fold}", log_graph=True)
     checkpoint_callback = ModelCheckpoint(filename="{epoch}-{val_dice:.4f}", monitor="val_dice",
                                           save_top_k=2, mode="max", save_last=True)
-    earlystopping_callback = EarlyStopping(monitor="val_dice", patience=25, mode="max")
+    earlystopping_callback = EarlyStopping(monitor="val_dice", patience=50, mode="max")
     outpath = args.log_dir
     shutil.copyfile("module/ucaps.py", os.path.join(outpath, "ucaps_" + str(DSName) + ".txt"))
     shutil.copyfile("datamodule/invitro.py", os.path.join(outpath, "datamodule_" + str(DSName) + ".txt"))
@@ -155,3 +154,4 @@ if __name__ == "__main__":
     trainer.fit(net, datamodule=data_module)
     print("Best model path ", checkpoint_callback.best_model_path)
     print("Best val mean dice ", checkpoint_callback.best_model_score.item())
+

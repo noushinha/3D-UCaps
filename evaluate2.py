@@ -50,15 +50,11 @@ if __name__ == "__main__":
                             help="shrec/ iseg2017 / task02_heart / task04_hippocampus / luna16 / invitro")
     val_parser.add_argument("--fold", type=int, default=0)
     val_parser.add_argument("--checkpoint_path", type=str,
-                            # default='/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_invitro_0/version_0/checkpoints/epoch=128-val_dice=0.8708.ckpt',
+                            default='/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_invitro_0/version_12/checkpoints/epoch=128-val_dice=0.7760.ckpt',  # ribosome radi 13
                             # default='/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_invitro_0/version_7/checkpoints/epoch=88-val_dice=0.8742.ckpt',  # Proteasome
-                            default='/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_invitro_0/version_6/checkpoints/epoch=141-val_dice=0.7083.ckpt',
-                            # Proteasome
+                            # default='/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_invitro_0/version_8/checkpoints/epoch=161-val_dice=0.8021.ckpt',  # PT-RB New Targets, RB radi 15
+                            # default='/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_invitro_0/version_9/checkpoints/epoch=161-val_dice=0.8099.ckpt',  # PT-RB New Targets, RB radi 13
                             help='/path/to/trained_model. Set to "" for none.')
-    # default="/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_task04_hippocampus_0/version_1/checkpoints/
-    # epoch=29-val_dice=0.8700.ckpt",
-    # "--checkpoint_path", type=str, default="/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_invitro_0/version_0/
-    # checkpoints/epoch=137-val_dice=0.8705.ckpt", help='/path/to/trained_model. Set to "" for none.'
 
     # THIS LINE IS KEY TO PULL THE MODEL NAME
     temp_args, _ = parser.parse_known_args()
@@ -152,11 +148,11 @@ if __name__ == "__main__":
         print("Load trained model!!!")
 
     # Prediction
-
     # trainer2 = Trainer.from_argparse_args(args, gpus=1)
     # print(trainer2.test(model=net, dataloaders=test_loader, verbose=True))
     # trainer2.test(model=net, test_dataloaders=test_loader, verbose=True)
     trainer = Trainer.from_argparse_args(args, gpus=1)
+
     outputs = trainer.predict(net, dataloaders=val_loader)
 
     # Calculate metric and visualize
@@ -183,12 +179,10 @@ if __name__ == "__main__":
         include_background=False, metric_name="sensitivity", compute_sample=True, reduction="none", get_not_nans=False
     )
 
-
     for i, data in enumerate(tqdm(val_loader)):
         labels = data["label"]
-
+        print(np.unique(labels))
         val_outputs = outputs[i].cpu()
-
         if args.save_image:
             if args.dataset == "iseg2017":
                 pred_saver.save_batch(
@@ -208,7 +202,6 @@ if __name__ == "__main__":
                         "affine": data["label_meta_dict"]["affine"],
                     },
                 )
-
         val_outputs = [post_pred(val_output) for val_output in decollate_batch(val_outputs)]
         labels = [post_label(label) for label in decollate_batch(labels)]
 

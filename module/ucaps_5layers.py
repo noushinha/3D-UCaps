@@ -149,7 +149,7 @@ class UCaps3D(pl.LightningModule):
         parser = parent_parser.add_argument_group("UCaps3D")
         # Architecture params
         parser.add_argument("--in_channels", type=int, default=1)
-        parser.add_argument("--out_channels", type=int, default=3)
+        parser.add_argument("--out_channels", type=int, default=2)
         parser.add_argument("--share_weight", type=int, default=1)
         parser.add_argument("--connection", type=str, default="skip")
 
