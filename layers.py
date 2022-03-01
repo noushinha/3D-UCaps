@@ -644,6 +644,7 @@ class MarginLoss(nn.Module):
                 ) / torch.sum(self.class_weight)
         else:
             loss = torch.sum(0.5 * positive_cost + self.downweight * 0.5 * negative_cost, dim=1)
+            # loss = nn.MultiMarginLoss()  # torch.sum(torch.max(0, 1 - (x[y[i]]-x[i])))
 
         if self.reduction == "mean":
             return torch.mean(loss)

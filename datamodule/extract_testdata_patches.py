@@ -47,7 +47,7 @@ mask = read_mrc(mask_name)
 
 x_centers = list(range(bwidth, tomo.shape[2] - bwidth, slide))
 y_centers = list(range(bwidth, tomo.shape[1] - bwidth, slide))
-z_centers = [77]  # list(range(bwidth, tomo.shape[0] - bwidth, slide))
+z_centers = [73]  # list(range(bwidth, tomo.shape[0] - bwidth, slide))
 
 # if dimensions are not exactly divisible, we should collect the remained voxels around borders
 x_centers, y_centers, z_centers = correct_center_positions(x_centers, y_centers, z_centers, tomo.shape, bwidth)

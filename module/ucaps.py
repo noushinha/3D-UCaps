@@ -59,11 +59,10 @@ class UCaps3D(pl.LightningModule):
         if self.cls_loss == "DiceCE":
             self.classification_loss2 = DiceCELoss(softmax=True, to_onehot_y=True, ce_weight=self.class_weight)
         elif self.cls_loss == "CE":
-            self.classification_loss2 = DiceCELoss(
-                softmax=True, to_onehot_y=True, ce_weight=self.class_weight, lambda_dice=0.0
-            )
+            self.classification_loss2 = DiceCELoss(softmax=True, to_onehot_y=True, ce_weight=self.class_weight, lambda_dice=0.0)
         elif self.cls_loss == "Dice":
             self.classification_loss2 = DiceCELoss(softmax=True, to_onehot_y=True, lambda_ce=0.0)
+
         # self.reconstruction_loss = nn.MSELoss(reduction="none")
         # self.reconstruction_loss = nn.KLDivLoss(reduction="none")
         # self.reconstruction_loss = nn.BCELoss()

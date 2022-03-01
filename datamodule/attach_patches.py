@@ -18,7 +18,7 @@ tomo = np.zeros(shape).astype(np.float64)
 avg_tomo = np.zeros(shape2).astype(np.int8)
 label_map = np.zeros(shape).astype(np.int8)
 # base_dir = '/mnt/Data/Cryo-ET/3D-UCaps/data/invitro/output/multiclass/labelsTs_Tomo23_validation_408_withOverlap_1_v3/'
-base_dir = '/mnt/Data/Cryo-ET/3D-UCaps/data/invitro/output/labelsTs'
+base_dir = '/data/invitro/output/labelsTs'
 
 def write_mrc(array, filename):
     """ This function writes an mrc file
