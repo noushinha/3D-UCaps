@@ -5,11 +5,13 @@ import nibabel as nib
 import mrcfile as mrc
 # define variables
 num_class = 2
-tomo_id = 23
+tomo_id = 9
 overlap = 1
-patch_size = 408
-shape = (154, 409, 409)
-shape2 = (154, 409, 409, 3)
+patch_size = 511
+# shape = (154, 409, 409)
+# shape2 = (154, 409, 409, 3)
+shape = (200, 512, 512)
+shape2 = (200, 512, 512, 3)
 bwidth = int(patch_size / 2)
 patch_crop = 0
 bcrop = int(bwidth - patch_crop)
@@ -17,8 +19,9 @@ slide = int(2 * bwidth + 1 - overlap)  # patch_size - overlap
 tomo = np.zeros(shape).astype(np.float64)
 avg_tomo = np.zeros(shape2).astype(np.int8)
 label_map = np.zeros(shape).astype(np.int8)
-# base_dir = '/mnt/Data/Cryo-ET/3D-UCaps/data/invitro/output/multiclass/labelsTs_Tomo23_validation_408_withOverlap_1_v3/'
-base_dir = '/data/invitro/output/labelsTs'
+
+# base_dir = '/mnt/Data/Cryo-ET/3D-UCaps/data/invitro/output/labelsTs'
+base_dir = '/mnt/Data/Cryo-ET/3D-UCaps/data/shrec/output/labelsTs'
 
 def write_mrc(array, filename):
     """ This function writes an mrc file
@@ -45,7 +48,7 @@ def correct_center_positions(xc, yc, zc, dim, offset):
 
 x_centers = list(range(bwidth, tomo.shape[2] - bwidth, slide))
 y_centers = list(range(bwidth, tomo.shape[1] - bwidth, slide))
-z_centers = [77]  # list(range(bwidth, tomo.shape[0] - bwidth, slide))
+z_centers = [100]  # list(range(bwidth, tomo.shape[0] - bwidth, slide))
 
 # if dimensions are not exactly divisible,
 # we should collect the remained voxels around borders

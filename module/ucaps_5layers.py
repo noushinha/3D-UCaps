@@ -75,6 +75,7 @@ class UCaps3D(pl.LightningModule):
         self.overlap = self.hparams.overlap
 
         # Building model
+        # to remove dilations you just deactivate them then change the padding to 2
         self.feature_extractor = nn.Sequential(
             OrderedDict(
                 [

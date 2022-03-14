@@ -2,12 +2,8 @@ import argparse
 
 import numpy as np
 import torch
-from datamodule.heart import HeartDecathlonDataModule
-from datamodule.hippocampus import HippocampusDecathlonDataModule
+
 from datamodule.shrec import SHRECDataModule
-from datamodule.invitro import InvitroDataModule
-from datamodule.iseg import ISeg2017DataModule
-from datamodule.luna import LUNA16DataModule
 from module.segcaps import SegCaps2D, SegCaps3D
 from module.ucaps import UCaps3D
 from module.unet import UNetModule
@@ -37,23 +33,21 @@ def print_metric(metric_name, scores, reduction="mean"):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--root_dir", type=str, default="/mnt/Data/Cryo-ET/3D-UCaps/data/invitro/")
+    parser.add_argument("--root_dir", type=str, default="/mnt/Data/Cryo-ET/3D-UCaps/data/shrec/")
     parser.add_argument("--save_image", type=int, default=1, help="Save image or not")
-    # parser.add_argument("--gpus", type=int, default=1, help="use gpu or not")
+    # parser.add_argument("--gpus", ty`pe=int, default=1, help="use gpu or not")
     parser = Trainer.add_argparse_args(parser)
 
     # Validation config
     val_parser = parser.add_argument_group("Validation config")
-    val_parser.add_argument("--output_dir", type=str, default="/mnt/Data/Cryo-ET/3D-UCaps/data/invitro/output/")
+    val_parser.add_argument("--output_dir", type=str, default="/mnt/Data/Cryo-ET/3D-UCaps/data/shrec/output/")
     val_parser.add_argument("--model_name", type=str, default="ucaps", help="ucaps / segcaps-2d / segcaps-3d / unet")
-    val_parser.add_argument("--dataset", type=str, default="invitro",
-                            help="shrec/ iseg2017 / task02_heart / task04_hippocampus / luna16 / invitro")
+    val_parser.add_argument("--dataset", type=str, default="shrec", help="shrec/ invitro")
     val_parser.add_argument("--fold", type=int, default=0)
     val_parser.add_argument("--checkpoint_path", type=str,
-                            default='/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_invitro_0/version_12/checkpoints/epoch=128-val_dice=0.7760.ckpt',  # ribosome radi 13
-                            # default='/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_invitro_0/version_7/checkpoints/epoch=88-val_dice=0.8742.ckpt',  # Proteasome
-                            # default='/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_invitro_0/version_8/checkpoints/epoch=161-val_dice=0.8021.ckpt',  # PT-RB New Targets, RB radi 15
-                            # default='/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_invitro_0/version_9/checkpoints/epoch=161-val_dice=0.8099.ckpt',  # PT-RB New Targets, RB radi 13
+                            # default='/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_shrec_0/version_15/checkpoints/epoch=9-val_dice=0.8640.ckpt',  # 3GL1
+                            # default='/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_shrec_0/version_16/checkpoints/epoch=82-val_dice=0.8635.ckpt',# 1BXN
+                            default='/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_shrec_0/version_17/checkpoints/epoch=77-val_dice=0.9152.ckpt',# 4D8Q
                             help='/path/to/trained_model. Set to "" for none.')
 
     # THIS LINE IS KEY TO PULL THE MODEL NAME
@@ -79,30 +73,9 @@ if __name__ == "__main__":
     # Improve reproducibility
     set_determinism(seed=0)
 
-    # Prepare datamodule
-    if args.dataset == "iseg2017":
-        data_module = ISeg2017DataModule(
-            **dict_args,
-        )
-        map_label = MapLabelValue(target_labels=[0, 10, 150, 250], orig_labels=[0, 1, 2, 3], dtype=np.uint8)
-    elif args.dataset == "task02_heart":
-        data_module = HeartDecathlonDataModule(
-            **dict_args,
-        )
-    elif args.dataset == "task04_hippocampus":
-        data_module = HippocampusDecathlonDataModule(
-            **dict_args,
-        )
-    elif args.dataset == "luna16":
-        data_module = LUNA16DataModule(
-            **dict_args,
-        )
-    elif args.dataset == "shrec":
+
+    if args.dataset == "shrec":
         data_module = SHRECDataModule(
-            **dict_args,
-        )
-    elif args.dataset == "invitro":
-        data_module = InvitroDataModule(
             **dict_args,
         )
     else:
@@ -110,12 +83,9 @@ if __name__ == "__main__":
 
     data_module.setup("validate")
     val_loader = data_module.val_dataloader()
-    # data_module.setup("validate")
-    # val_loader = data_module.test_dataloader()
     val_batch_size = 1
 
     # Load trained model
-
     if args.checkpoint_path != "":
         if args.model_name == "ucaps":
             net = UCaps3D.load_from_checkpoint(
@@ -181,18 +151,20 @@ if __name__ == "__main__":
 
     for i, data in enumerate(tqdm(val_loader)):
         labels = data["label"]
-        print(np.unique(labels))
+        # print(np.unique(labels))
         val_outputs = outputs[i].cpu()
+        # print(np.unique(val_outputs))
         if args.save_image:
             if args.dataset == "iseg2017":
-                pred_saver.save_batch(
-                    map_label(torch.stack([save_pred(i) for i in decollate_batch(val_outputs)]).cpu()),
-                    meta_data={
-                        "filename_or_obj": data["label_meta_dict"]["filename_or_obj"],
-                        "original_affine": data["label_meta_dict"]["original_affine"],
-                        "affine": data["label_meta_dict"]["affine"],
-                    },
-                )
+                print("iseg2017")
+                # pred_saver.save_batch(
+                #     map_label(torch.stack([save_pred(i) for i in decollate_batch(val_outputs)]).cpu()),
+                #     meta_data={
+                #         "filename_or_obj": data["label_meta_dict"]["filename_or_obj"],
+                #         "original_affine": data["label_meta_dict"]["original_affine"],
+                #         "affine": data["label_meta_dict"]["affine"],
+                #     },
+                # )
             else:
                 pred_saver.save_batch(
                     torch.stack([save_pred(i) for i in decollate_batch(val_outputs)]),

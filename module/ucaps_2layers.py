@@ -105,8 +105,8 @@ class UCaps3D(pl.LightningModule):
                             out_channels=32,
                             kernel_size=5,
                             strides=1,
-                            dilation=2,
-                            padding=4,
+                            # dilation=2,
+                            padding=2,
                             bias=False,
                         ),
                     ),
@@ -118,8 +118,8 @@ class UCaps3D(pl.LightningModule):
                             out_channels=64,
                             kernel_size=5,
                             strides=1,
-                            padding=4,
-                            dilation=2,
+                            padding=2,
+                            # dilation=2,
                             bias=False,
                             act="tanh",
                         ),
@@ -149,7 +149,8 @@ class UCaps3D(pl.LightningModule):
 
         self.dice_metric = DiceMetric(include_background=False, reduction="mean_batch", get_not_nans=False)
 
-        self.example_input_array = torch.rand(1, self.in_channels, 64, 64, 64)
+        # self.example_input_array = torch.rand(1, self.in_channels, 64, 64, 64)
+        self.example_input_array = torch.rand(1, self.in_channels, 32, 32, 32)
 
     @staticmethod
     def add_model_specific_args(parent_parser):
@@ -161,7 +162,8 @@ class UCaps3D(pl.LightningModule):
         parser.add_argument("--connection", type=str, default="skip")
 
         # Validation params
-        parser.add_argument("--val_patch_size", nargs="+", type=int, default=[64, 64, 64])
+        # parser.add_argument("--val_patch_size", nargs="+", type=int, default=[64, 64, 64])
+        parser.add_argument("--val_patch_size", nargs="+", type=int, default=[32, 32, 32])
         parser.add_argument("--val_frequency", type=int, default=100)
         parser.add_argument("--sw_batch_size", type=int, default=1)
         parser.add_argument("--overlap", type=float, default=0.75)

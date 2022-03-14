@@ -5,24 +5,35 @@ import nibabel as nib
 import mrcfile as mrc
 from lxml import etree
 
-base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/0InvitroTargets/"
+# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/0InvitroTargets/"
 # base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/Invitro_PTClass/"
 # base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/Invitro_RBClass/"
-output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/invitro/"
+# output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/invitro/datasets/new/PTClass/"
 
-# # base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/DeepET_Tomo_Masks_3Class/"
-# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/DeepET_Tomo_Masks_1Class/"
-# output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/shrec3/"
+# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC_3GL1/"
+# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC_4D8Q/"
+# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC_1BXN/"
+base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC_MultiClass/"
+# output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/shrec/datasets/3GL1/"
+# output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/shrec/datasets/4D8Q/"
+# output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/shrec/datasets/1BXN/"
+output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/shrec/datasets/MultiClass/"
 
 patch_size = 64
 patch_shift = 0
 patches_tomos = []
 patches_masks = []
+
+# for real data
 # class_names_list = ["1"]  # proteasome class
 # class_names_list = ["2"]  # ribosome class
-class_names_list = ["1", "2"] # proteasome 1 and ribosome 2
-# class_names_list = ["11", "12"]
-# class_names_list = ["6", "11", "12"]
+# class_names_list = ["1", "2"] # proteasome 1 and ribosome 2
+
+# for artificial data
+class_names_list = ["1", "8", "12"]
+# class_names_list = ["12"]  # 4D8Q
+# class_names_list = ["8"]  # 3GL1
+# class_names_list = ["1"]  # 1BXN
 
 def read_mrc(filename):
     with mrc.open(filename, mode='r+', permissive=True) as mc:
@@ -111,14 +122,16 @@ def int2str(n):
         strn = str(n)
     return str(strn)
 
-radis = [10, 13]
-list_tomoID = [8, 10, 21, 23]
-for i in range(0, 4):
+# radis = [10, 13]
+# list_tomoID = [8, 10, 21, 23]
+list_tomoID = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+for i in range(0, 10):
+# for i in range(0, 4):
     tomo_id = "0" + str(i)
-    # img_mrc = base_dir + '/reconstruction_model_' + str(tomo_id) + '.mrc'
-    # msk_mrc = base_dir + 'target_reconstruction_model_' + str(tomo_id) + '.mrc'
-    img_mrc = base_dir + '/' + str(list_tomoID[i]) + '_resampled.mrc'
-    msk_mrc = base_dir + 'target_' + str(list_tomoID[i]) + '_resampled.mrc'
+    img_mrc = base_dir + '/reconstruction_model_' + str(tomo_id) + '.mrc'
+    msk_mrc = base_dir + 'target_reconstruction_model_' + str(tomo_id) + '.mrc'
+    # img_mrc = base_dir + '/' + str(list_tomoID[i]) + '_resampled.mrc'
+    # msk_mrc = base_dir + 'target_' + str(list_tomoID[i]) + '_resampled.mrc'
     tomo = read_mrc(img_mrc)
     mask = read_mrc(msk_mrc)
     # mask = mask[:, 0:409, 0:409]

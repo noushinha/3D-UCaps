@@ -3,8 +3,10 @@ from argparse import ArgumentParser
 
 import torch
 import shutil
+import re
+from glob import glob
 
-from datamodule.invitro import InvitroDataModule
+from datamodule.shrec import SHRECDataModule
 from module.segcaps import SegCaps2D, SegCaps3D
 from module.ucaps import UCaps3D
 from module.unet import UNetModule
@@ -18,7 +20,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 # --check_val_every_n_epoch 100 --log_dir=../logs --root_dir=/home/ubuntu/
 
 if __name__ == "__main__":
-    DSName = "invitro"
+    DSName = "shrec"
     parser = ArgumentParser()
     parser.add_argument("--root_dir", type=str, default="/mnt/Data/Cryo-ET/3D-UCaps/data/" + str(DSName))
     parser.add_argument("--cache_rate", type=float, default=None)
@@ -28,9 +30,9 @@ if __name__ == "__main__":
     train_parser = parser.add_argument_group("Training config")
     train_parser.add_argument("--log_dir", type=str, default="/mnt/Data/Cryo-ET/3D-UCaps/logs")
     train_parser.add_argument("--model_name", type=str, default="ucaps", help="ucaps / segcaps-2d / segcaps-3d / unet")
-    train_parser.add_argument("--dataset", type=str, default="invitro",
-                              help="iseg2017 / task02_heart / task04_hippocampus / luna16 / shrec/ invitro")
+    train_parser.add_argument("--dataset", type=str, default=str(DSName), help=" shrec/ invitro")
     train_parser.add_argument("--train_patch_size", nargs="+", type=int, default=[64, 64, 64])
+    # train_parser.add_argument("--train_patch_size", nargs="+", type=int, default=[32, 32, 32])
     train_parser.add_argument("--fold", type=int, default=0)
     train_parser.add_argument("--num_workers", type=int, default=4)
     train_parser.add_argument("--batch_size", type=int, default=1)
@@ -70,8 +72,8 @@ if __name__ == "__main__":
     seed_everything(0, workers=True)
 
     # Set up datamodule
-    if args.dataset == "invitro":
-        data_module = InvitroDataModule(
+    if args.dataset == "shrec":
+        data_module = SHRECDataModule(
             **dict_args,
         )
     else:
@@ -97,6 +99,7 @@ if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     mymodel = net.to(device)
     print(summary(mymodel, (1, 64, 64, 64)))
+    # print(summary(mymodel, (1, 32, 32, 32)))
 
     # set up loggers and checkpoints
     if args.dataset == "iseg2017":
@@ -107,11 +110,12 @@ if __name__ == "__main__":
     checkpoint_callback = ModelCheckpoint(filename="{epoch}-{val_dice:.4f}", monitor="val_dice",
                                           save_top_k=2, mode="max", save_last=True)
     earlystopping_callback = EarlyStopping(monitor="val_dice", patience=50, mode="max")
-    outpath = args.log_dir
-    shutil.copyfile("module/ucaps.py", os.path.join(outpath, "ucaps_" + str(DSName) + ".txt"))
-    shutil.copyfile("datamodule/invitro.py", os.path.join(outpath, "datamodule_" + str(DSName) + ".txt"))
-    shutil.copyfile("train_" + str(DSName) + ".py", os.path.join(outpath, "train_" + str(DSName) + ".txt"))
-    shutil.copyfile("data/" + str(DSName) + "/dataset.json", os.path.join(outpath, "json_" + str(DSName) + ".txt"))
+
+
+    # shutil.copyfile("module/ucaps.py", os.path.join(outpath, "ucaps_" + str(DSName) + ".txt"))
+    # shutil.copyfile("datamodule/shrec.py", os.path.join(outpath, "datamodule_" + str(DSName) + ".txt"))
+    # shutil.copyfile("train_shrec.py", os.path.join(outpath, "train_" + str(DSName) + ".txt"))
+    # shutil.copyfile("data/shrec3/dataset.json", os.path.join(outpath, "json_" + str(DSName) + ".txt"))
 
     trainer = Trainer.from_argparse_args(
         args,
@@ -126,6 +130,17 @@ if __name__ == "__main__":
     )
 
     trainer.fit(net, datamodule=data_module)
+
+    outpath = args.log_dir
+    dataset_log_dir = os.path.join(outpath, "ucaps_" + str(DSName) + "_0")
+    list_version_dirs = glob(os.path.join(dataset_log_dir, "version_*"))
+    list_version_dirs.sort(key=lambda f: int(re.sub('\D', '', f)))
+
+    shutil.copyfile("module/ucaps.py", os.path.join(list_version_dirs[-1], "ucaps_" + str(DSName) + ".txt"))
+    shutil.copyfile("datamodule/shrec.py", os.path.join(list_version_dirs[-1], "datamodule_" + str(DSName) + ".txt"))
+    shutil.copyfile("train_shrec.py", os.path.join(list_version_dirs[-1], "train_" + str(DSName) + ".txt"))
+    shutil.copyfile("data/shrec/dataset.json", os.path.join(list_version_dirs[-1], "json_" + str(DSName) + ".txt"))
+
     print("Best model path ", checkpoint_callback.best_model_path)
     print("Best val mean dice ", checkpoint_callback.best_model_score.item())
 
