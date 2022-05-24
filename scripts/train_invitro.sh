@@ -5,11 +5,11 @@ export CUDA_VISIBLE_DEVICES=0
 python train.py --log_dir /mnt/Data/Cryo-ET/3D-UCaps/logs \
                 --gpus 1 \
                 --check_val_every_n_epoch 1 \
-                --max_epochs 200 \
+                --max_epochs 300 \
                 --dataset invitro \
                 --model_name ucaps \
                 --root_dir /mnt/Data/Cryo-ET/3D-UCaps/data/invitro \
-                --fold 0 \
+                --fold 5 \
                 --train_patch_size 32 32 32 \
                 --num_workers 4 \
                 --batch_size 1 \
