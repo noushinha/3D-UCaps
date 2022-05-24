@@ -30,3 +30,5 @@
 /datamodule/extract_testdata_patches.py
 /datamodule/generate_train_patches.py
 /datamodule/prepare_json_dataset.py
+/module/ucaps_2layers.py
+/module/ucaps_5layers.py
