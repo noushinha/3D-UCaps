@@ -2,7 +2,8 @@ import os
 
 import numpy as np
 import pytorch_lightning as pl
-from monai.data import ArrayDataset, CacheDataset, DataLoader, Dataset, PersistentDataset, load_decathlon_datalist, partition_dataset
+from monai.data import CacheDataset, DataLoader, Dataset, PersistentDataset, load_decathlon_datalist, partition_dataset
+# ArrayDataset,
 from monai.transforms import (
     AddChanneld,
     Compose,
@@ -11,17 +12,18 @@ from monai.transforms import (
     LoadImage,
     LoadImaged,
     Orientationd,
-    RandCropByPosNegLabeld,
+    # RandCropByPosNegLabeld,
     ScaleIntensityd,
     SpatialPadd,
     ToTensord,
-    RandRotate90d
+    # RandRotate90d
 )
 
 
-class InvitroDataModule(pl.LightningDataModule):
+class ArtificialDataModule(pl.LightningDataModule):
     class_weight = np.asarray([0.01361341, 0.47459406, 0.51179253])
     # class_weight = np.asarray([0.02540594, 0.97459406])
+
     def __init__(
         self,
         root_dir=".",
@@ -165,10 +167,10 @@ class InvitroDataModule(pl.LightningDataModule):
             else:
                 self.trainset = Dataset(data=train_data_dicts, transform=self.train_transforms)
                 self.valset = Dataset(data=val_data_dicts, transform=self.val_transforms)
-            print("length of trainset: ", len(self.trainset))
-            print("length of trainset: ", len(self.valset))
+            print("length of train set: ", len(self.trainset))
+            print("length of validation set: ", len(self.valset))
         elif stage == "validate":
-            # _, val_data_dicts = self._load_data_dicts()
+            # _, val_data_di/cts = self._load_data_dicts()
             val_data_dicts = self._load_data_dicts()
             self.valset = CacheDataset(
                 data=val_data_dicts, transform=self.val_transforms, cache_rate=1.0, num_workers=4
@@ -228,7 +230,7 @@ class InvitroDataModule(pl.LightningDataModule):
 
 
 if __name__ == "__main__":
-    data_module = InvitroDataModule(root_dir="/mnt/Data/Cryo-ET/3D-UCaps/data/invitro/")
+    data_module = ArtificialDataModule(root_dir="/mnt/Data/Cryo-ET/3D-UCaps/data/artificial/")
     # /home/ubuntu/Task04_Hippocampus
     # data_module.calculate_class_weight()
     data_module.calculate_class_percentage()

@@ -31,7 +31,7 @@ if __name__ == "__main__":
     train_parser.add_argument("--log_dir", type=str, default="/mnt/Data/Cryo-ET/3D-UCaps/logs")
     train_parser.add_argument("--model_name", type=str, default="ucaps", help="ucaps / segcaps-2d / segcaps-3d / unet")
     train_parser.add_argument("--dataset", type=str, default=str(DSName), help=" shrec/ invitro")
-    train_parser.add_argument("--train_patch_size", nargs="+", type=int, default=[64, 64, 64])
+    train_parser.add_argument("--train_patch_size", nargs="+", type=int, default=[16, 16, 16])
     # train_parser.add_argument("--train_patch_size", nargs="+", type=int, default=[32, 32, 32])
     train_parser.add_argument("--fold", type=int, default=0)
     train_parser.add_argument("--num_workers", type=int, default=4)
@@ -98,7 +98,8 @@ if __name__ == "__main__":
     from torchsummary import summary
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     mymodel = net.to(device)
-    print(summary(mymodel, (1, 64, 64, 64)))
+    print(summary(mymodel, (1, 16, 16, 16)))
+    print(torch.cuda.max_memory_allocated())
     # print(summary(mymodel, (1, 32, 32, 32)))
 
     # set up loggers and checkpoints
@@ -109,7 +110,7 @@ if __name__ == "__main__":
                                       name=f"{args.model_name}_{args.dataset}_{args.fold}", log_graph=True)
     checkpoint_callback = ModelCheckpoint(filename="{epoch}-{val_dice:.4f}", monitor="val_dice",
                                           save_top_k=2, mode="max", save_last=True)
-    earlystopping_callback = EarlyStopping(monitor="val_dice", patience=50, mode="max")
+    earlystopping_callback = EarlyStopping(monitor="val_dice", patience=100, mode="max")
 
 
     # shutil.copyfile("module/ucaps.py", os.path.join(outpath, "ucaps_" + str(DSName) + ".txt"))
@@ -121,7 +122,7 @@ if __name__ == "__main__":
         args,
         benchmark=True,
         logger=tb_logger,
-        callbacks=[checkpoint_callback, earlystopping_callback],
+        callbacks=[checkpoint_callback , earlystopping_callback],
         num_sanity_val_steps=1,
         terminate_on_nan=True,
         gpus=1, max_epochs=300,

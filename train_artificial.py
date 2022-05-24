@@ -1,11 +1,8 @@
 import os
 from argparse import ArgumentParser
-
 import torch
 import shutil
-
-from datamodule.invitro import InvitroDataModule
-from module.segcaps import SegCaps2D, SegCaps3D
+from datamodule.artificial import ArtificialDataModule
 from module.ucaps import UCaps3D
 from module.unet import UNetModule
 from monai.utils import set_determinism
@@ -18,7 +15,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 # --check_val_every_n_epoch 100 --log_dir=../logs --root_dir=/home/ubuntu/
 
 if __name__ == "__main__":
-    DSName = "invitro"
+    DSName = "artificial"
     parser = ArgumentParser()
     parser.add_argument("--root_dir", type=str, default="/mnt/Data/Cryo-ET/3D-UCaps/data/" + str(DSName))
     parser.add_argument("--cache_rate", type=float, default=None)
@@ -27,8 +24,8 @@ if __name__ == "__main__":
     # Training options
     train_parser = parser.add_argument_group("Training config")
     train_parser.add_argument("--log_dir", type=str, default="/mnt/Data/Cryo-ET/3D-UCaps/logs")
-    train_parser.add_argument("--model_name", type=str, default="ucaps", help="ucaps")
-    train_parser.add_argument("--dataset", type=str, default="invitro", help="invitro")
+    train_parser.add_argument("--model_name", type=str, default="ucaps", help="ucaps / unet")
+    train_parser.add_argument("--dataset", type=str, default="artificial", help="artificial / shrec/ invitro")
     train_parser.add_argument("--train_patch_size", nargs="+", type=int, default=[64, 64, 64])
     train_parser.add_argument("--fold", type=int, default=0)
     train_parser.add_argument("--num_workers", type=int, default=4)
@@ -46,10 +43,6 @@ if __name__ == "__main__":
     # let the model add what it wants
     if temp_args.model_name == "ucaps":
         parser, model_parser = UCaps3D.add_model_specific_args(parser)
-    elif temp_args.model_name == "segcaps-2d":
-        parser, model_parser = SegCaps2D.add_model_specific_args(parser)
-    elif temp_args.model_name == "segcaps-3d":
-        parser, model_parser = SegCaps3D.add_model_specific_args(parser)
     elif temp_args.model_name == "unet":
         parser, model_parser = UNetModule.add_model_specific_args(parser)
 
@@ -69,8 +62,8 @@ if __name__ == "__main__":
     seed_everything(0, workers=True)
 
     # Set up datamodule
-    if args.dataset == "invitro":
-        data_module = InvitroDataModule(
+    if args.dataset == "artificial":
+        data_module = ArtificialDataModule(
             **dict_args,
         )
     else:
@@ -84,10 +77,6 @@ if __name__ == "__main__":
 
     if args.model_name == "ucaps":
         net = UCaps3D(**dict_args, class_weight=class_weight)
-    elif args.model_name == "segcaps-3d":
-        net = SegCaps3D(**dict_args, class_weight=class_weight)
-    elif args.model_name == "segcaps-2d":
-        net = SegCaps2D(**dict_args, class_weight=class_weight)
     elif args.model_name == "unet":
         net = UNetModule(**dict_args, class_weight=class_weight)
 
@@ -98,14 +87,11 @@ if __name__ == "__main__":
     print(summary(mymodel, (1, 64, 64, 64)))
 
     # set up loggers and checkpoints
-    if args.dataset == "iseg2017":
-        tb_logger = TensorBoardLogger(save_dir=args.log_dir, name=f"{args.model_name}_{args.dataset}", log_graph=True)
-    else:
-        tb_logger = TensorBoardLogger(save_dir=args.log_dir,
+    tb_logger = TensorBoardLogger(save_dir=args.log_dir,
                                       name=f"{args.model_name}_{args.dataset}_{args.fold}", log_graph=True)
     checkpoint_callback = ModelCheckpoint(filename="{epoch}-{val_dice:.4f}", monitor="val_dice",
                                           save_top_k=2, mode="max", save_last=True)
-    earlystopping_callback = EarlyStopping(monitor="val_dice", patience=50, mode="max")
+    earlystopping_callback = EarlyStopping(monitor="val_dice", patience=100, mode="max")
     outpath = args.log_dir
     shutil.copyfile("module/ucaps.py", os.path.join(outpath, "ucaps_" + str(DSName) + ".txt"))
     shutil.copyfile("datamodule/invitro.py", os.path.join(outpath, "datamodule_" + str(DSName) + ".txt"))
@@ -119,8 +105,7 @@ if __name__ == "__main__":
         callbacks=[checkpoint_callback, earlystopping_callback],
         num_sanity_val_steps=1,
         terminate_on_nan=True,
-        gpus=1, max_epochs=350,
-        resume_from_checkpoint="/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_artificial_0/version_1/checkpoints/epoch=296-val_dice=0.9547.ckpt"
+        gpus=1, max_epochs=300,
     )
 
     trainer.fit(net, datamodule=data_module)

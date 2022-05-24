@@ -4,14 +4,16 @@ import numpy as np
 import nibabel as nib
 import mrcfile as mrc
 # define variables
-num_class = 2
-tomo_id = 9
+num_class = 3
+tomo_id = 23
 overlap = 1
-patch_size = 511
-# shape = (154, 409, 409)
-# shape2 = (154, 409, 409, 3)
-shape = (200, 512, 512)
-shape2 = (200, 512, 512, 3)
+patch_size = 408
+shape = (154, 409, 409)
+shape2 = (154, 409, 409, 3)
+# shape = (200, 512, 512)
+# shape2 = (200, 512, 512, num_class)
+# shape = (103, 409, 409)
+# shape2 = (103, 409, 409, num_class)
 bwidth = int(patch_size / 2)
 patch_crop = 0
 bcrop = int(bwidth - patch_crop)
@@ -19,9 +21,11 @@ slide = int(2 * bwidth + 1 - overlap)  # patch_size - overlap
 tomo = np.zeros(shape).astype(np.float64)
 avg_tomo = np.zeros(shape2).astype(np.int8)
 label_map = np.zeros(shape).astype(np.int8)
+binned_labelmap = np.zeros(shape2)
 
-# base_dir = '/mnt/Data/Cryo-ET/3D-UCaps/data/invitro/output/labelsTs'
-base_dir = '/mnt/Data/Cryo-ET/3D-UCaps/data/shrec/output/labelsTs'
+base_dir = '/mnt/Data/Cryo-ET/3D-UCaps/data/invitro/output/labelsTs'
+# base_dir = '/mnt/Data/Cryo-ET/3D-UCaps/data/shrec/output/labelsTs'
+# base_dir = '/mnt/Data/Cryo-ET/3D-UCaps/data/artificial/output/labelsTs'
 
 def write_mrc(array, filename):
     """ This function writes an mrc file
@@ -48,7 +52,7 @@ def correct_center_positions(xc, yc, zc, dim, offset):
 
 x_centers = list(range(bwidth, tomo.shape[2] - bwidth, slide))
 y_centers = list(range(bwidth, tomo.shape[1] - bwidth, slide))
-z_centers = [100]  # list(range(bwidth, tomo.shape[0] - bwidth, slide))
+z_centers = [100]  # 73 list(range(bwidth, tomo.shape[0] - bwidth, slide))
 
 # if dimensions are not exactly divisible,
 # we should collect the remained voxels around borders
@@ -108,6 +112,8 @@ for z in z_centers:
                             current_patch2[i, j, k, 1] += 1
                         elif int_patch[i, j, k] == 2:
                             current_patch2[i, j, k, 2] += 1
+                        elif int_patch[i, j, k] == 3:
+                            current_patch2[i, j, k, 3] += 1
             # avg_tomo[z - bwidth:z + bwidth, y - bwidth:y + bwidth, x - bwidth:x + bwidth, :] = current_patch2
             avg_tomo[:, y - bwidth:y + bwidth, x - bwidth:x + bwidth, :] = current_patch2
 
@@ -119,6 +125,7 @@ for z in z_centers:
 
 # required only if there are overlapping regions (normalization)
 label_map = np.argmax(avg_tomo, 3)
+
 end = time.time()
 processed_in = end - start
 print("--- Processed in: ", processed_in, " ---")

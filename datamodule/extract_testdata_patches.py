@@ -4,24 +4,27 @@ import mrcfile as mrc
 import nibabel as nib
 
 # base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/DeepET_Tomo_Masks_3Class"
-# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/0InvitroTargets"
-# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/Invitro_PTClass"
-# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/Invitro_RBClass"
+base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/Invitro/Invitro_PTRBClass"
+# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/Invitro/Invitro_PTClass"
+# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/Invitro/Invitro_RBClass"
 # output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/invitro/"
 
-base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC_3GL1"
-# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC_1BXN"
-# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC_4D8Q"
-output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/shrec/"
+# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC/SHREC_3GL1"
+# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC/SHREC_1BXN"
+# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC/SHREC_4D8Q"
+# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC/SHREC_MultiClass"
+# output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/shrec/"
+
+# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/Artificial/MultiClass/"
+output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/artificial/"
 
 overlap = 1
-classNum = 2
 patch_num = 1
-patch_size = 511  # 408
-tomo_id = 2
+patch_size = 408  # 512
+tomo_id = 23
 bwidth = int(patch_size / 2)
 slide = int(2 * bwidth + 1 - overlap)  # 1  # patch_size - overlap
-dataset_type = "artificial"  # real
+dataset_type = "real"  # real, shrec, artificial
 
 def read_mrc(filename):
     with mrc.open(filename, mode='r+', permissive=True) as mc:
@@ -44,9 +47,12 @@ def correct_center_positions(xc, yc, zc, dim, offset):
 if dataset_type == "real":
     tomo_name = os.path.join(base_dir, str(tomo_id) + '_resampled.mrc')
     mask_name = os.path.join(base_dir, 'target_' + str(tomo_id) + '_resampled.mrc')
-else:
+elif dataset_type == "shrec":
     tomo_name = os.path.join(base_dir, 'reconstruction_model_0' + str(tomo_id) + '.mrc')
     mask_name = os.path.join(base_dir, 'target_reconstruction_model_0' + str(tomo_id) + '.mrc')
+elif dataset_type =="artificial":
+    tomo_name = os.path.join(base_dir, 'tomo_rec_' + str(tomo_id) + '.mrc')
+    mask_name = os.path.join(base_dir, 'target_tomo_rec_' + str(tomo_id) + '.mrc')
 
 tomo = read_mrc(tomo_name)
 mask = read_mrc(mask_name)
@@ -54,7 +60,7 @@ mask = read_mrc(mask_name)
 
 x_centers = list(range(bwidth, tomo.shape[2] - bwidth, slide))
 y_centers = list(range(bwidth, tomo.shape[1] - bwidth, slide))
-z_centers = [100]  # [73]  # list(range(bwidth, tomo.shape[0] - bwidth, slide))
+z_centers = [77]  # [73], [100], [51]  # list(range(bwidth, tomo.shape[0] - bwidth, slide))
 
 # if dimensions are not exactly divisible, we should collect the remained voxels around borders
 x_centers, y_centers, z_centers = correct_center_positions(x_centers, y_centers, z_centers, tomo.shape, bwidth)

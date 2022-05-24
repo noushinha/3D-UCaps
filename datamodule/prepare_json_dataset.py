@@ -4,8 +4,9 @@ import json
 from glob import glob
 
 # generating a json.dataset file similar to that of hippocampus dataset
-dataset = "shrec"
-# dataset = "invitro"
+# dataset = "shrec"
+dataset = "invitro"
+# dataset = "artificial"
 base_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/" + str(dataset)
 # mode = "train"
 mode = "validate"
@@ -18,14 +19,14 @@ data = {"name": "invitro",
         "release": "experimental data",
         "tensorImageSize": "3D",
         "modality": {"0": "tomogram"},
-        # "labels": {"0": "bg", "1": "ptr", "2": "rb"},
+        "labels": {"0": "bg", "1": "ptr", "2": "rb"},
         # "labels": {"0": "bg", "1": "ptr"},
         # "labels": {"0": "bg", "1": "rb"},
         # "labels": {"0": "bg", "1": "3gl1"},
-        "labels": {"0": "bg", "1": "1bxn"},
+        # "labels": {"0": "bg", "1": "1bxn"},
         # "labels": {"0": "bg", "1": "4dhq"},
-        "numTraining": 2051,
-        "numTest": 0,
+        "numTraining": 2370,
+        "numTest": 4,  # tomo 11
         }
 
 list_tr_tomos_IDs = glob(os.path.join(base_dir, "imagesTr/*.nii.gz"))

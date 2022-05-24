@@ -50,6 +50,7 @@ if __name__ == "__main__":
                             # default='/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_invitro_0/version_12/checkpoints/epoch=128-val_dice=0.7760.ckpt',  # ribosome radi 13
                             # default='/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_invitro_0/version_13/checkpoints/epoch=282-val_dice=0.8560.ckpt', # PT-RB New Targets, RB radi 13
                             # default='/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_invitro_0/version_14/checkpoints/epoch=65-val_dice=0.8929.ckpt',  # Proteasome
+                            default= '/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_invitro_0/version_15/checkpoints/epoch=349-val_dice=0.7723.ckpt',  # TL
                             help='/path/to/trained_model. Set to "" for none.')
 
     # THIS LINE IS KEY TO PULL THE MODEL NAME

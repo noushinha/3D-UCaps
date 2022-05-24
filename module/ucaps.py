@@ -64,10 +64,10 @@ class UCaps3D(pl.LightningModule):
             )
         elif self.cls_loss == "Dice":
             self.classification_loss2 = DiceCELoss(softmax=True, to_onehot_y=True, lambda_ce=0.0)
-        self.reconstruction_loss = nn.MSELoss(reduction="none")
+        # self.reconstruction_loss = nn.MSELoss(reduction="none")
         # self.reconstruction_loss = nn.KLDivLoss(reduction="none")
         # self.reconstruction_loss = nn.BCELoss()
-        # self.reconstruction_loss = nn.BCEWithLogitsLoss(reduction="none")
+        self.reconstruction_loss = nn.BCEWithLogitsLoss(reduction="none")
 
         self.val_frequency = self.hparams.val_frequency
         self.val_patch_size = self.hparams.val_patch_size
@@ -145,19 +145,21 @@ class UCaps3D(pl.LightningModule):
 
         self.example_input_array = torch.rand(1, self.in_channels, 64, 64, 64)
         # self.example_input_array = torch.rand(1, self.in_channels, 32, 32, 32)
+        # self.example_input_array = torch.rand(1, self.in_channels, 16, 16, 16)
 
     @staticmethod
     def add_model_specific_args(parent_parser):
         parser = parent_parser.add_argument_group("UCaps3D")
         # Architecture params
         parser.add_argument("--in_channels", type=int, default=1)
-        parser.add_argument("--out_channels", type=int, default=2)
+        parser.add_argument("--out_channels", type=int, default=3)
         parser.add_argument("--share_weight", type=int, default=1)
         parser.add_argument("--connection", type=str, default="skip")
 
         # Validation params
         parser.add_argument("--val_patch_size", nargs="+", type=int, default=[64, 64, 64])
         # parser.add_argument("--val_patch_size", nargs="+", type=int, default=[32, 32, 32])
+        # parser.add_argument("--val_patch_size", nargs="+", type=int, default=[16, 16, 16])
         parser.add_argument("--val_frequency", type=int, default=100)
         parser.add_argument("--sw_batch_size", type=int, default=1)
         parser.add_argument("--overlap", type=float, default=0.75)

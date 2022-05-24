@@ -15,14 +15,15 @@ def read_mrc(filename):
         mrc_tomo = mc.data
     return mrc_tomo
 
-# patch = nib.load("/mnt/Data/Cryo-ET/DeepET/data/invitro_RibosomeAndProteasome/tomo_23/23_resampled.nii")
-patch = read_mrc("/mnt/Data/Cryo-ET/3D-UCaps/data/invitro/labelsTs/target_23_resampled.mrc")
+
+# patch = nib.load("/mnt/Data/Cryo-ET/data/Invitro/tomo_8/proteasome8AvgNoWei_p2.2A.mrc")
+patch = read_mrc("/mnt/Data/Cryo-ET/data/Invitro/tomo_8/proteasome8AvgNoWei_p2.2A.resampled.mrc")
 # patch = nib.load("/mnt/Data/Cryo-ET/3D-UCaps/data/invitro/labelsTs/target_23_resampled.mrc")
 empty_header_tomo = nib.Nifti1Header()
 empty_header_tomo.get_data_shape()
 empty_header_tomo = nib.Nifti1Header()
-nifti_mask = nib.Nifti1Image(np.array(np.swapaxes(patch, 0, 2), dtype=np.uint16), np.eye(4))
-patch_tomo_name = "/mnt/Data/Cryo-ET/3D-UCaps/data/invitro/labelsTs/target_23_resampled.nii.gz"
+nifti_mask = nib.Nifti1Image(np.array(np.swapaxes(patch, 0, 2), dtype=np.float), np.eye(4))
+patch_tomo_name = "/mnt/Data/Cryo-ET/data/Invitro/tomo_8/proteasome8Avg.nii.gz"
 patch_tomo_name = os.path.join(patch_tomo_name)
 nib.save(nifti_mask, patch_tomo_name)
 print(patch_tomo_name + " is saved")

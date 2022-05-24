@@ -5,21 +5,27 @@ import nibabel as nib
 import mrcfile as mrc
 from lxml import etree
 
-# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/0InvitroTargets/"
+base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/nifti/"
+output_dir = "/mnt/Data/Cryo-ET/DeepET/data2/nifti/"
 # base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/Invitro_PTClass/"
 # base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/Invitro_RBClass/"
 # output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/invitro/datasets/new/PTClass/"
 
-# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC_3GL1/"
-# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC_4D8Q/"
-# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC_1BXN/"
-base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC_MultiClass/"
-# output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/shrec/datasets/3GL1/"
+# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC/SHREC_3GL1/"
+# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC/SHREC_4D8Q/"
+# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC/SHREC_1BXN/"
+# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/SHREC/SHREC_MultiClass/"
+# output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/shrec/datasets/3GL1/patch_size_16/"
 # output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/shrec/datasets/4D8Q/"
 # output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/shrec/datasets/1BXN/"
-output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/shrec/datasets/MultiClass/"
+# output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/shrec/datasets/MultiClass/"
 
-patch_size = 64
+# base_dir = "/mnt/Data/Cryo-ET/DeepET/data2/Artificial/MultiClass/"
+# output_dir = "/mnt/Data/Cryo-ET/3D-UCaps/data/artificial/datasets/MultiClass/"
+
+# tomo_rec_0
+# target_tomo_rec_0
+patch_size = 50
 patch_shift = 0
 patches_tomos = []
 patches_masks = []
@@ -29,11 +35,15 @@ patches_masks = []
 # class_names_list = ["2"]  # ribosome class
 # class_names_list = ["1", "2"] # proteasome 1 and ribosome 2
 
-# for artificial data
-class_names_list = ["1", "8", "12"]
+# for shrec data
+# class_names_list = ["1", "8", "12"]
 # class_names_list = ["12"]  # 4D8Q
 # class_names_list = ["8"]  # 3GL1
 # class_names_list = ["1"]  # 1BXN
+
+# for artificial data
+class_names_list = ["1", "2"]  # proteasome 1 and ribosome 2
+
 
 def read_mrc(filename):
     with mrc.open(filename, mode='r+', permissive=True) as mc:
@@ -122,16 +132,23 @@ def int2str(n):
         strn = str(n)
     return str(strn)
 
+
 # radis = [10, 13]
 # list_tomoID = [8, 10, 21, 23]
-list_tomoID = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-for i in range(0, 10):
-# for i in range(0, 4):
+list_tomoID = [8]
+# list_tomoID = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+# list_tomoID = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+for i in range(0, len(list_tomoID)):
+    # for i in range(0, 4):
     tomo_id = "0" + str(i)
-    img_mrc = base_dir + '/reconstruction_model_' + str(tomo_id) + '.mrc'
-    msk_mrc = base_dir + 'target_reconstruction_model_' + str(tomo_id) + '.mrc'
-    # img_mrc = base_dir + '/' + str(list_tomoID[i]) + '_resampled.mrc'
-    # msk_mrc = base_dir + 'target_' + str(list_tomoID[i]) + '_resampled.mrc'
+    # img_mrc = base_dir + '/reconstruction_model_' + str(tomo_id) + '.mrc'
+    # msk_mrc = base_dir + 'target_reconstruction_model_' + str(tomo_id) + '.mrc'
+    img_mrc = base_dir + '/' + str(list_tomoID[i]) + '_resampled.mrc'
+    msk_mrc = base_dir + 'target_' + str(list_tomoID[i]) + '_resampled.mrc'
+    # img_mrc = base_dir + '/tomo_rec_' + str(list_tomoID[i]) + '.mrc'
+    # msk_mrc = base_dir + 'target_tomo_rec_' + str(list_tomoID[i]) + '.mrc'
+    # img_mrc = base_dir + '/tomo_rec_' + str(list_tomoID[i]) + '.mrc'
+    # msk_mrc = base_dir + 'target_tomo_rec_' + str(list_tomoID[i]) + '.mrc'
     tomo = read_mrc(img_mrc)
     mask = read_mrc(msk_mrc)
     # mask = mask[:, 0:409, 0:409]
@@ -153,7 +170,7 @@ cnt = 0
 tomo_idx_prev = -1
 for i in range(0, len(list_annotations)):  #
     # find the tomo
-    tomo_idx = int(list_annotations[i]['tomo_idx'])
+    tomo_idx = 0  # int(list_annotations[i]['tomo_idx'])
 
     if tomo_idx_prev != tomo_idx:
         cnt = 0
