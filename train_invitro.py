@@ -83,19 +83,35 @@ if __name__ == "__main__":
         class_weight = None
 
     if args.model_name == "ucaps":
-        net = UCaps3D(**dict_args, class_weight=class_weight)
+        # checkpoint_path = '/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_artificial_0/version_1/checkpoints/epoch=296-val_dice=0.9547.ckpt'
+        checkpoint_path = '/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_invitro_0/version_15/checkpoints/epoch=349-val_dice=0.7723.ckpt'
+        net = UCaps3D.load_from_checkpoint(
+            checkpoint_path,
+            val_patch_size=[64, 64, 64],
+            sw_batch_size=1,
+            overlap=0.75,
+        )
+        substr = "reconstruct_branch"
+        # print model summary
+        from torchsummary import summary
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        mymodel = net.to(device)
+        print(summary(mymodel, (1, 64, 64, 64)))
+        # for param in net.parameters():
+        #     param.requires_grad = False
+        # params = net.state_dict()
+        # keys = list(params.keys())
+        for name, param in net.named_parameters():
+            if substr not in name:
+                if param.requires_grad:
+                    param.requires_grad = False
+        # net = UCaps3D(**dict_args, class_weight=class_weight)
     elif args.model_name == "segcaps-3d":
         net = SegCaps3D(**dict_args, class_weight=class_weight)
     elif args.model_name == "segcaps-2d":
         net = SegCaps2D(**dict_args, class_weight=class_weight)
     elif args.model_name == "unet":
         net = UNetModule(**dict_args, class_weight=class_weight)
-
-    # print model summary
-    from torchsummary import summary
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    mymodel = net.to(device)
-    print(summary(mymodel, (1, 64, 64, 64)))
 
     # set up loggers and checkpoints
     if args.dataset == "iseg2017":
@@ -114,13 +130,13 @@ if __name__ == "__main__":
 
     trainer = Trainer.from_argparse_args(
         args,
-        benchmark=True,
+        # benchmark=True,
         logger=tb_logger,
         callbacks=[checkpoint_callback, earlystopping_callback],
         num_sanity_val_steps=1,
         terminate_on_nan=True,
-        gpus=1, max_epochs=350,
-        resume_from_checkpoint="/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_artificial_0/version_1/checkpoints/epoch=296-val_dice=0.9547.ckpt"
+        gpus=1, max_epochs=10
+        # resume_from_checkpoint="/mnt/Data/Cryo-ET/3D-UCaps/logs/ucaps_artificial_0/version_1/checkpoints/epoch=296-val_dice=0.9547.ckpt"
     )
 
     trainer.fit(net, datamodule=data_module)
