@@ -15,5 +15,3 @@ tomograms using capsule networks. BMC Bioinformatics 23, 360 (2022). https://doi
 
 ### Installation
 Please visit: https://github.com/VinAIResearch/3D-UCaps.git
-```
-
