@@ -9,39 +9,11 @@ we employ capsule-based architecture to automate the task of macromolecule ident
 Details of the 3D-UCaps model architecture can be found here [following paper](https://rdcu.be/cyhMv):
 
 ```
-@inproceedings{nguyen20213d,
-  title={3D-UCaps: 3D Capsules Unet for Volumetric Image Segmentation},
-  author={Nguyen, Tan and Hua, Binh-Son and Le, Ngan},
-  booktitle={International Conference on Medical Image Computing and Computer-Assisted Intervention},
-  pages={548--558},
-  year={2021},
-  organization={Springer}
-}
+Hajarolasvadi, N., Sunkara, V., Khavnekar, S. et al. Volumetric macromolecule identification in cryo-electron 
+tomograms using capsule networks. BMC Bioinformatics 23, 360 (2022). https://doi.org/10.1186/s12859-022-04901-w
 ```
 
 ### Installation
-We provide instructions on how to install dependencies via conda. First, clone the repository locally:
+Please visit: https://github.com/VinAIResearch/3D-UCaps.git
 ```
-git clone https://github.com/VinAIResearch/3D-UCaps.git
-```
-
-Then, install dependencies depends on your cuda version. We provide two versions for CUDA 10 and CUDA 11
-```
-conda env create -f environment_cuda11.yml
-or
-conda env create -f environment_cuda10.yml
-```
-
-### Data preparation
-We expect the data directory structure to be as follows:
-
-```
-path/to/<dataset>/
-  imagesTr
-  labelsTr
-```
-=======
-### Training
-
-Arguments for training can be divided into 3 groups:
 
